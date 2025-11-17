@@ -416,3 +416,13 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+
+# ASP.NET Core secrets
+appsettings.Development.json
+appsettings.*.json
+secrets.json
+appsettings.json
+
+# LaunchSettings (yerel profil ayarları)
+backend/Properties/launchSettings.json
