@@ -1,6 +1,8 @@
 ﻿using backend.Data;
+using backend.Dtos;
 using backend.Models;
 using backend.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Security.Cryptography.X509Certificates;
 
@@ -10,12 +12,14 @@ namespace backend.Services
     {
         private IUserRepository userRepository;
         private AppDbContext context;
+        private readonly IUserContextService userContextService;
 
 
-        public UserService(IUserRepository userRepository, AppDbContext context)
+        public UserService(IUserRepository userRepository, AppDbContext context, IUserContextService userContextService)
         {
             this.userRepository = userRepository;
             this.context = context;
+            this.userContextService = userContextService;
         }
 
         public async Task<List<User>> GetAllUsers()
@@ -34,12 +38,17 @@ namespace backend.Services
             return user;
         }
 
-        public async Task AddUser(User user)
+        public async Task AddUser(UserRegisterRequest userRequest)
         {
-            if(user == null)
+            if(!String.IsNullOrEmpty(userRequest.Username))
             {
-                throw new ArgumentNullException("User doesn't null");
+                throw new ArgumentNullException("Username cannot null");
             }
+
+            User user = new User()
+            {
+                Username = userRequest.Username
+            };
 
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
@@ -56,18 +65,24 @@ namespace backend.Services
             }
         }
 
-        public async Task UpdateUser(int id, User user)
+        public async Task UpdateUser(int id, UserRequest userRequest)
         {
-            if(user == null)
+            if(userRequest == null)
             {
                 throw new ArgumentNullException("User cannot be null");
             }
 
             User dbUser = await GetById(id);
+            int currentUserId = userContextService.GetUserId();
 
-            if(user.UserName != null)
+            if(dbUser.Id != currentUserId)
             {
-                dbUser.UserName = user.UserName;
+                throw new Exception("This user is not yours, so you cannot update it.");
+            }
+
+            if(userRequest.Username != null)
+            {
+                dbUser.Username = userRequest.Username;
             }
 
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
@@ -83,12 +98,17 @@ namespace backend.Services
                 await transaction.RollbackAsync();
                 throw;
             }
-
         }
 
         public async Task DeleteUser(int id)
         {
             User user = await GetById(id);
+            int currentUserId = userContextService.GetUserId();
+
+            if (user.Id != currentUserId)
+            {
+                throw new Exception("This user is not yours, so you cannot delete it.");
+            }
 
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
@@ -103,6 +123,12 @@ namespace backend.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<User> GetByUserName(string userName)
+        {
+            User user = await userRepository.GetByUserName(userName);
+            return user;
         }
     }
 }

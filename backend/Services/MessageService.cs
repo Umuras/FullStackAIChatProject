@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.Dtos;
 using backend.Models;
 using backend.Repositories;
 using Microsoft.AspNetCore.SignalR.Protocol;
@@ -10,11 +11,13 @@ namespace backend.Services
     {
         private readonly IMessageRepository messageRepository;
         private readonly AppDbContext context;
+        private readonly IUserContextService userContextService;
 
-        public MessageService(IMessageRepository messageRepository, AppDbContext context)
+        public MessageService(IMessageRepository messageRepository, AppDbContext context, IUserContextService userContextService)
         {
             this.messageRepository = messageRepository;
             this.context = context;
+            this.userContextService = userContextService;
         }
 
         public async Task<List<Message>> GetAllMessagesAsync()
@@ -33,12 +36,17 @@ namespace backend.Services
             return message;
         }
 
-        public async Task AddMessageAsync(Message message)
+        public async Task AddMessageAsync(MessageRequest messageRequest)
         {
-            if(message  == null)
+            if(!String.IsNullOrEmpty(messageRequest.MessageText))
             {
                 throw new ArgumentNullException("Message cannot be null");
             }
+
+            Message message = new Message()
+            {
+                MessageText = messageRequest.MessageText
+            };
 
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
@@ -55,20 +63,26 @@ namespace backend.Services
             }
         }
 
-        public async Task UpdateMessageAsync(int id, Message message)
+        public async Task UpdateMessageAsync(int id, MessageRequest messageRequest)
         {
-            if(message == null)
+            if(!String.IsNullOrEmpty(messageRequest.MessageText))
             {
                 throw new ArgumentNullException("Message cannot be null");
             }
 
             Message dbMessage = await GetMessageByIdAsync(id);
+            int currentUserId = userContextService.GetUserId();
 
-            if(message.MessageText != null)
+            if(dbMessage.UserId != currentUserId)
             {
-                dbMessage.MessageText = message.MessageText;
+                throw new Exception("This message is not yours, so you can't change this message");
             }
 
+            if(messageRequest.MessageText != null)
+            {
+                dbMessage.MessageText = messageRequest.MessageText;
+            }
+            
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
             {
@@ -87,6 +101,13 @@ namespace backend.Services
         public async Task DeleteMessageAsync(int id)
         {
             Message message = await GetMessageByIdAsync(id);
+
+            int currentUserId = userContextService.GetUserId();
+
+            if (message.UserId != currentUserId)
+            {
+                throw new Exception("This message is not yours, so you can't delete this message");
+            }
 
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try

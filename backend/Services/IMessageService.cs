@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using backend.Dtos;
+using backend.Models;
 
 namespace backend.Services
 {
@@ -6,8 +7,8 @@ namespace backend.Services
     {
         Task<List<Message>> GetAllMessagesAsync();
         Task<Message> GetMessageByIdAsync(int id);
-        Task AddMessageAsync(Message message);
-        Task UpdateMessageAsync(int id, Message message);
+        Task AddMessageAsync(MessageRequest messageRequest);
+        Task UpdateMessageAsync(int id, MessageRequest messageRequest);
         Task DeleteMessageAsync(int id);
     }
 }

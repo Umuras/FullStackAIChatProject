@@ -25,7 +25,7 @@ namespace backend.Data
                 entity.ToTable("User")
                       .HasKey(u => u.Id);
 
-                entity.Property(u => u.UserName)
+                entity.Property(u => u.Username)
                       .IsRequired()
                       .HasMaxLength(50);
             });

@@ -1,6 +1,8 @@
-﻿using backend.Models;
+﻿using backend.Dtos;
+using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security;
 
 namespace backend.Controllers
 {
@@ -30,27 +32,28 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMessage([FromBody] Message message)
+        public async Task<IActionResult> AddMessage([FromBody] MessageRequest message)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            
 
             await messageService.AddMessageAsync(message);
 
-            return CreatedAtAction(nameof(GetMessageById), new { id = message.Id }, message);
+            return Created();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMessage(int id, [FromBody] Message message)
+        public async Task<IActionResult> UpdateMessage(int id, [FromBody] MessageRequest messageRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await messageService.UpdateMessageAsync(id, message);
+            await messageService.UpdateMessageAsync(id, messageRequest);
 
             return Ok("Message updated successfully");
         }

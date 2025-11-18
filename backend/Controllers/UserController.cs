@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using backend.Dtos;
+using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +31,7 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddUser([FromBody] User user)
+        public async Task<IActionResult> AddUser([FromBody] UserRegisterRequest user)
         {
             if(!ModelState.IsValid)
             {
@@ -39,11 +40,11 @@ namespace backend.Controllers
 
             await userService.AddUser(user);
 
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return Created();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserRequest userRequest)
         {
             if(!ModelState.IsValid)
             {

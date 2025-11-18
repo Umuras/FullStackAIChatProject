@@ -40,5 +40,11 @@ namespace backend.Repositories
             context.Users.Remove(user);
             return Task.CompletedTask;
         }
+
+        public async Task<User> GetByUserName(string username)
+        {
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Username.Equals(username));
+            return user;
+        }
     }
 }
