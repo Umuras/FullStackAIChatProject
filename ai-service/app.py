@@ -1,16 +1,16 @@
 import gradio as gr
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
 # Sentiment Analysis modelini yükle (CPU)
 sentiment = pipeline(
-    "sentiment-analysis",
-    model="cardiffnlp/twitter-xlm-roberta-base-sentiment",
+    task="sentiment-analysis",
+    model="tabularisai/multilingual-sentiment-analysis",
     device=-1
 )
 
 def analyze(text: str):
     if not text or not text.strip():
-        return {"label": "NEUTRAL ", "score": 0.0}
+        return {"label": "NEUTRAL", "score": 0.0}
     result = sentiment(text)[0]
     return {
         "label": result["label"],   # POSITIVE / NEGATIVE

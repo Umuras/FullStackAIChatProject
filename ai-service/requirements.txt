@@ -1,3 +1,5 @@
 gradio
-transformers
+transformers>=4.35.0
 torch
+tiktoken>=0.4.0
+gradio>=3.50
