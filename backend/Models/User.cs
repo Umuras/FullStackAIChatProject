@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace backend.Models
+{
+    public class User
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "UserName is required")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "UserName characters quantity is between 2 to 50.")]
+        public string UserName { get; set; } = String.Empty;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public List<Message> Messages { get; set; } = new();
+    }
+}
