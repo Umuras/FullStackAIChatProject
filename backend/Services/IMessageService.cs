@@ -7,8 +7,10 @@ namespace backend.Services
     {
         Task<List<Message>> GetAllMessagesAsync();
         Task<Message> GetMessageByIdAsync(int id);
-        Task AddMessageAsync(MessageRequest messageRequest);
-        Task UpdateMessageAsync(int id, MessageRequest messageRequest);
+        Task<Message> AddMessageAsync(MessageRequest messageRequest);
+        Task<Message> UpdateMessageAsync(int id, MessageRequest messageRequest);
         Task DeleteMessageAsync(int id);
+        List<MessageResponse> ChangeMessagesResponse(List<Message> messages);
+        MessageResponse ChangeMessageResponse(Message message);
     }
 }

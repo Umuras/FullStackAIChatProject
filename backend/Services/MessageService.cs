@@ -12,12 +12,15 @@ namespace backend.Services
         private readonly IMessageRepository messageRepository;
         private readonly AppDbContext context;
         private readonly IUserContextService userContextService;
+        private readonly IAIService aiService;
 
-        public MessageService(IMessageRepository messageRepository, AppDbContext context, IUserContextService userContextService)
+        public MessageService(IMessageRepository messageRepository, AppDbContext context, 
+            IUserContextService userContextService, IAIService aiService)
         {
             this.messageRepository = messageRepository;
             this.context = context;
             this.userContextService = userContextService;
+            this.aiService = aiService;
         }
 
         public async Task<List<Message>> GetAllMessagesAsync()
@@ -36,7 +39,7 @@ namespace backend.Services
             return message;
         }
 
-        public async Task AddMessageAsync(MessageRequest messageRequest)
+        public async Task<Message> AddMessageAsync(MessageRequest messageRequest)
         {
             if(!String.IsNullOrEmpty(messageRequest.MessageText))
             {
@@ -48,6 +51,11 @@ namespace backend.Services
                 MessageText = messageRequest.MessageText
             };
 
+            SentimentData sentimentData = await aiService.SendMessageAIAsync(message);
+
+            message.SentimentLabel = sentimentData.Label;
+            message.SentimentScore = sentimentData.Score;
+
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
             {
@@ -55,6 +63,7 @@ namespace backend.Services
                 await context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+                return message;
             }
             catch (Exception)
             {
@@ -63,7 +72,7 @@ namespace backend.Services
             }
         }
 
-        public async Task UpdateMessageAsync(int id, MessageRequest messageRequest)
+        public async Task<Message> UpdateMessageAsync(int id, MessageRequest messageRequest)
         {
             if(!String.IsNullOrEmpty(messageRequest.MessageText))
             {
@@ -82,7 +91,12 @@ namespace backend.Services
             {
                 dbMessage.MessageText = messageRequest.MessageText;
             }
-            
+
+            SentimentData sentimentData = await aiService.SendMessageAIAsync(dbMessage);
+
+            dbMessage.SentimentLabel = sentimentData.Label;
+            dbMessage.SentimentScore = sentimentData.Score;
+
             using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
             try
             {
@@ -90,6 +104,7 @@ namespace backend.Services
                 await context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+                return dbMessage;
             }
             catch (Exception)
             {
@@ -122,6 +137,34 @@ namespace backend.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public List<MessageResponse> ChangeMessagesResponse(List<Message> messages)
+        {
+            List<MessageResponse> messageResponses = messages.Select(message => new MessageResponse
+            {
+                Id = message.Id,
+                MessageText = message.MessageText,
+                CreatedDate = message.CreatedDate,
+                SentimentLabel = message.SentimentLabel,
+                SentimentScore = message.SentimentScore
+            }).ToList();
+
+            return messageResponses;
+        }
+
+        public MessageResponse ChangeMessageResponse(Message message)
+        {
+            MessageResponse messageResponse = new MessageResponse()
+            {
+                Id = message.Id,
+                MessageText = message.MessageText,
+                CreatedDate = message.CreatedDate,
+                SentimentLabel = message.SentimentLabel,
+                SentimentScore = message.SentimentScore
+            };
+
+            return messageResponse;
         }
     }
 }

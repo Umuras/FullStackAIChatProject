@@ -21,14 +21,16 @@ namespace backend.Controllers
         public async Task<IActionResult> GetAllMessages()
         {
             List<Message> messages = await messageService.GetAllMessagesAsync();
-            return Ok(messages);
+            List<MessageResponse> messagesResponse = messageService.ChangeMessagesResponse(messages);
+            return Ok(messagesResponse);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMessageById(int id)
         {
             Message message = await messageService.GetMessageByIdAsync(id);
-            return Ok(message);
+            MessageResponse messageResponse = messageService.ChangeMessageResponse(message);
+            return Ok(messageResponse);
         }
 
         [HttpPost]
@@ -38,11 +40,11 @@ namespace backend.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
 
-            await messageService.AddMessageAsync(message);
+            Message dbMessage = await messageService.AddMessageAsync(message);
+            MessageResponse messageResponse = messageService.ChangeMessageResponse(dbMessage);
 
-            return Created();
+            return CreatedAtAction(nameof(GetMessageById), new {id = dbMessage.Id}, messageResponse);
         }
 
         [HttpPut("{id}")]
@@ -53,9 +55,10 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            await messageService.UpdateMessageAsync(id, messageRequest);
+            Message dbMessage = await messageService.UpdateMessageAsync(id, messageRequest);
+            MessageResponse messageResponse = messageService.ChangeMessageResponse(dbMessage);
 
-            return Ok("Message updated successfully");
+            return Ok(messageResponse);
         }
 
         [HttpDelete("{id}")]
