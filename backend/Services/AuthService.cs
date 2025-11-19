@@ -24,8 +24,8 @@ namespace backend.Services
             {
                 throw new ArgumentNullException(nameof(request));
             }
-
-            GenerateTokenResponse generatedTokenInformation = await tokenService.GenerateToken(new JwtUtil.GenerateTokenRequest { Username = request.Username });
+            User user = await userService.GetByUserName(request.Username);
+            GenerateTokenResponse generatedTokenInformation = await tokenService.GenerateToken(new JwtUtil.GenerateTokenRequest { UserId=user.Id, Username = request.Username });
             response.AuthToken = generatedTokenInformation.Token;
             response.AuthenticateResult = true;
             response.AccessTokenExpireDate = generatedTokenInformation.TokenExpireDate;

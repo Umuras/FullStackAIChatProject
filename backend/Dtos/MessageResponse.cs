@@ -6,6 +6,8 @@ namespace backend.Dtos
     {
         [Key]
         public int Id { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Username is required.")]
+        public string Username { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Message is required.")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Message characters quantity is between 2 to 100.")]
         public string MessageText { get; set; } = String.Empty;

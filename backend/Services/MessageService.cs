@@ -13,14 +13,16 @@ namespace backend.Services
         private readonly AppDbContext context;
         private readonly IUserContextService userContextService;
         private readonly IAIService aiService;
+        private readonly IUserService userService;
 
         public MessageService(IMessageRepository messageRepository, AppDbContext context, 
-            IUserContextService userContextService, IAIService aiService)
+            IUserContextService userContextService, IAIService aiService, IUserService userService)
         {
             this.messageRepository = messageRepository;
             this.context = context;
             this.userContextService = userContextService;
             this.aiService = aiService;
+            this.userService = userService;
         }
 
         public async Task<List<Message>> GetAllMessagesAsync()
@@ -41,14 +43,19 @@ namespace backend.Services
 
         public async Task<Message> AddMessageAsync(MessageRequest messageRequest)
         {
-            if(!String.IsNullOrEmpty(messageRequest.MessageText))
+            if(String.IsNullOrEmpty(messageRequest.MessageText))
             {
                 throw new ArgumentNullException("Message cannot be null");
             }
 
+            int currentUserId = userContextService.GetUserId();
+            User user = await userService.GetById(currentUserId);
+
             Message message = new Message()
             {
-                MessageText = messageRequest.MessageText
+                MessageText = messageRequest.MessageText,
+                User = user,
+                UserId = currentUserId
             };
 
             SentimentData sentimentData = await aiService.SendMessageAIAsync(message);
@@ -74,7 +81,7 @@ namespace backend.Services
 
         public async Task<Message> UpdateMessageAsync(int id, MessageRequest messageRequest)
         {
-            if(!String.IsNullOrEmpty(messageRequest.MessageText))
+            if(String.IsNullOrEmpty(messageRequest.MessageText))
             {
                 throw new ArgumentNullException("Message cannot be null");
             }
@@ -144,6 +151,7 @@ namespace backend.Services
             List<MessageResponse> messageResponses = messages.Select(message => new MessageResponse
             {
                 Id = message.Id,
+                Username = message.User.Username,
                 MessageText = message.MessageText,
                 CreatedDate = message.CreatedDate,
                 SentimentLabel = message.SentimentLabel,
@@ -158,6 +166,7 @@ namespace backend.Services
             MessageResponse messageResponse = new MessageResponse()
             {
                 Id = message.Id,
+                Username = message.User.Username,
                 MessageText = message.MessageText,
                 CreatedDate = message.CreatedDate,
                 SentimentLabel = message.SentimentLabel,

@@ -1,5 +1,6 @@
 ﻿using backend.Dtos;
 using backend.Models;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace backend.Services
@@ -22,17 +23,31 @@ namespace backend.Services
             string? eventId = postContent["event_id"].ToString();
 
             var getResponse = await httpClient.GetAsync($"{spaceUrl}/{eventId}");
-            var resultContent = await getResponse.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var body = await getResponse.Content.ReadAsStringAsync();
+            var lines = body.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            var sentimentData = ((JsonElement)resultContent["data"]).Deserialize<List<Dictionary<string, object>>>();
+            // data: ile başlayan satırı bul
+            var dataLine = lines.FirstOrDefault(l => l.StartsWith("data:"));
 
-            string? label = sentimentData[0]["label"].ToString();
-            float score = float.Parse(sentimentData[0]["score"].ToString());
+            //string? label = sentimentData[0]["label"].ToString();
+            //float score = float.Parse(sentimentData[0]["score"].ToString());
+            SentimentData sentiment = new SentimentData();
+
+            if (dataLine != null)
+            {
+                var jsonPart = dataLine.Substring("data:".Length).Trim();
+
+                // artık JSON string
+                var sentimentList = JsonSerializer.Deserialize<List<SentimentData>>(jsonPart);
+
+                sentiment = sentimentList[0];
+                Console.WriteLine($"Label: {sentiment.Label}, Score: {sentiment.Score}");
+            }
 
             SentimentData data = new SentimentData()
             {
-                Label = label,
-                Score = score
+                Label = sentiment.Label,
+                Score = sentiment.Score
             };
 
             return data;

@@ -15,12 +15,12 @@ namespace backend.Repositories
 
         public async Task<List<Message>> GetAllMessagesAsync()
         {
-            return await context.Messages.ToListAsync();
+            return await context.Messages.Include(m => m.User).ToListAsync();
         }
 
         public async Task<Message> GetMessageByIdAsync(int id)
         {
-            Message? message = await context.Messages.FirstOrDefaultAsync(m => m.Id == id);
+            Message? message = await context.Messages.Include(m => m.User).FirstOrDefaultAsync(m => m.Id == id);
             return message;
         }
 

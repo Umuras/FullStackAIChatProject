@@ -21,10 +21,13 @@ export function LoginPage() {
   async function submitForm(formData) {
     try {
       const response = await axios
-        .post("http://localhost:5239/api/Auth/login", formData)
+        .post("http://localhost:5239/api/Auth/login", formData, {
+          withCredentials: true,
+        })
         .then((response) => {
           console.log("Kayıt Başarılı:", response.data);
-          toast.success("Kayıt Başarılı! Ana sayfaya yönlendiriliyorsunuz...");
+          localStorage.setItem("token", response.data.authToken);
+          toast.success("Giriş Başarılı! Ana sayfaya yönlendiriliyorsunuz...");
           navigate("/mainpage");
         });
     } catch (error) {
