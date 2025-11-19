@@ -1,5 +1,6 @@
 ﻿using backend.Dtos;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -15,14 +16,14 @@ namespace backend.Controllers
             this.authService = authService;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             UserLoginResponse response = await authService.LoginUserAsync(request);
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
             UserRegisterResponse response = await authService.RegisterUserAsync(request);

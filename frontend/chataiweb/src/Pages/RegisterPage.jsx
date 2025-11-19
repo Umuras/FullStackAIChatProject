@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -17,7 +18,23 @@ export function RegisterPage() {
     mode: "all",
   });
 
-  async function submitForm(formData) {}
+  async function submitForm(formData) {
+    try {
+      const response = await axios
+        .post("http://localhost:5239/api/Auth/register", formData)
+        .then((response) => {
+          console.log("Kayıt Başarılı:", response.data);
+          toast.success(
+            "Kayıt Başarılı! Giriş sayfasına yönlendiriliyorsunuz..."
+          );
+          navigate("/login");
+        });
+    } catch (error) {
+      toast.error("Kayıt başarısız. Zaten böyle bir kullanıcı var.");
+      console.error("Kayıt Hatası:", error);
+      console.log("Form Data Hatası:", formData);
+    }
+  }
 
   return (
     <section className="bg-linear-to-l from-sky-500 to-indigo-500 w-full min-h-screen flex items-center justify-center px-4">

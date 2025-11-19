@@ -38,7 +38,7 @@ namespace backend.Services
             User dbUser = await userService.GetByUserName(request.Username);
             if(dbUser != null)
             {
-                throw new ArgumentException("This already exist, please try another name");
+                throw new ArgumentException("This username already exist, please try another name");
             }
 
             UserRegisterResponse userRegisterResponse = new UserRegisterResponse();

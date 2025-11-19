@@ -40,7 +40,7 @@ namespace backend.Services
 
         public async Task AddUser(UserRegisterRequest userRequest)
         {
-            if(!String.IsNullOrEmpty(userRequest.Username))
+            if(String.IsNullOrEmpty(userRequest.Username))
             {
                 throw new ArgumentNullException("Username cannot null");
             }

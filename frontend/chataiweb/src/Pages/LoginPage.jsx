@@ -1,5 +1,7 @@
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -17,7 +19,19 @@ export function LoginPage() {
   });
 
   async function submitForm(formData) {
-    console.log("Form Data:", formData);
+    try {
+      const response = await axios
+        .post("http://localhost:5239/api/Auth/login", formData)
+        .then((response) => {
+          console.log("Kayıt Başarılı:", response.data);
+          toast.success("Kayıt Başarılı! Ana sayfaya yönlendiriliyorsunuz...");
+          navigate("/mainpage");
+        });
+    } catch (error) {
+      toast.error("Giriş başarısız. Kullanıcı adı bulunamadı.");
+      console.error("Kayıt Hatası:", error);
+      console.log("Form Data Hatası:", formData);
+    }
   }
 
   return (

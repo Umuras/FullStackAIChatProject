@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { LoginPage } from "./Pages/LoginPage";
 import { Route, Routes } from "react-router-dom";
 import { RegisterPage } from "./Pages/RegisterPage";
+import { MainPage } from "./Pages/MainPage";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -19,6 +20,7 @@ function App() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/mainpage" element={<MainPage />} />
         </Routes>
       </div>
     </>
