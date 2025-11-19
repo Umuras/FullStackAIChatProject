@@ -51,7 +51,7 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            await userService.UpdateUser(id,user);
+            await userService.UpdateUser(id,userRequest);
 
             return Ok("User updated successfully");
         }

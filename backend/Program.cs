@@ -16,7 +16,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpClient<IAIService, AIService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddHttpContextAccessor();
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["AppSettings:Secret"]);
