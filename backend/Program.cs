@@ -87,7 +87,7 @@ if (environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseCors();
+app.UseCors("localhost");
 app.UseAuthentication();
 app.UseAuthorization();
 
