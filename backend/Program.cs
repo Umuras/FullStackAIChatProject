@@ -15,7 +15,7 @@ var environment = builder.Environment;
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: false)
+    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
 // DB Context
