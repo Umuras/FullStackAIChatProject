@@ -21,7 +21,7 @@ export function RegisterPage() {
   async function submitForm(formData) {
     try {
       const response = await axios
-        .post("http://localhost:5239/api/Auth/register", formData)
+        .post(`${API_BASE_URL}/api/Auth/register`, formData)
         .then((response) => {
           console.log("Kayıt Başarılı:", response.data);
           toast.success(
