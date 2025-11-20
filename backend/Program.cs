@@ -9,16 +9,17 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var environment = builder.Environment;
+
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-// DB Context
+// DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Services
+// DI
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -36,7 +37,8 @@ var key = Encoding.ASCII.GetBytes(secret);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = true;
+        // Render HTTPS zorunlu olduðu için false olmalý
+        options.RequireHttpsMetadata = false;
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -70,14 +72,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// DB Migration
+// Auto-migrate
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-// Middleware
+// Dev tools
 if (environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -85,17 +87,10 @@ if (environment.IsDevelopment())
 }
 
 app.UseRouting();
-
-// CORS middleware burada
 app.UseCors();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Render port
-var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-app.Urls.Add($"http://*:{port}");
 
 app.Run();
