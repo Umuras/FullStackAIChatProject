@@ -1,12 +1,15 @@
 import axios from "axios";
-import { use, useEffect, useState } from "react";
-import { set } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 export function MainPage() {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [sendMessage, setSendMessage] = useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     axios
       .get("http://localhost:5239/api/Message", {
@@ -51,16 +54,26 @@ export function MainPage() {
     }
   }
 
-  if (messages.length === 0) {
-    return <div>Lütfen mesaj gönderiniz</div>;
+  function LogOut() {
+    localStorage.removeItem("token");
+    navigate("/login");
   }
 
   return (
     <section className="bg-linear-to-l from-sky-500 to-indigo-500 w-full min-h-screen flex justify-center px-4">
       <div className="flex flex-col">
-        <h1 className="text-white font-bold sm:text-lg md:text-xl mt-2 rounded-2xl border-amber-300 p-2 px-10 sm:p-3 sm:px-14 md:p-4 md:px-16 bg-linear-to-l from-amber-400 to-indigo-200 max-w-lg text-center">
-          Mesajlar
-        </h1>
+        <div className="flex gap-2">
+          <button
+            className="bg-red-600 font-bold text-white rounded-full px-4 py-2 mt-2 md:hidden"
+            onClick={LogOut}
+          >
+            X
+          </button>
+          <h1 className="text-white w-full font-bold sm:text-lg md:text-xl mt-2 rounded-2xl border-amber-300 p-2 px-10 sm:p-3 sm:px-14 md:p-4 md:px-16 bg-linear-to-l from-amber-400 to-indigo-200 max-w-lg text-center">
+            Mesajlar
+          </h1>
+        </div>
+
         <div className="flex flex-col gap-2">
           {messages.map((message) => (
             <div

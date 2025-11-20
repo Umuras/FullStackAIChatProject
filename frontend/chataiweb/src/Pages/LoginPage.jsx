@@ -25,14 +25,13 @@ export function LoginPage() {
           withCredentials: true,
         })
         .then((response) => {
-          console.log("Kayıt Başarılı:", response.data);
+          console.log("Giriş Başarılı:", response.data);
           localStorage.setItem("token", response.data.authToken);
           toast.success("Giriş Başarılı! Ana sayfaya yönlendiriliyorsunuz...");
           navigate("/mainpage");
         });
     } catch (error) {
       toast.error("Giriş başarısız. Kullanıcı adı bulunamadı.");
-      console.error("Kayıt Hatası:", error);
       console.log("Form Data Hatası:", formData);
     }
   }
