@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 export function RegisterPage() {
   const navigate = useNavigate();
