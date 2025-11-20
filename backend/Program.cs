@@ -2,19 +2,15 @@ using backend.Data;
 using backend.Repositories;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration
 var environment = builder.Environment;
-
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
@@ -38,11 +34,9 @@ builder.Services.AddHttpContextAccessor();
 // JWT
 var secret = builder.Configuration["AppSettings:Secret"];
 if (string.IsNullOrWhiteSpace(secret))
-{
-    throw new Exception($"JWT Secret is missing! appsetting.{environment.EnvironmentName}.json");
-}
-var key = Encoding.ASCII.GetBytes(secret);
+    throw new Exception($"JWT Secret missing in appsettings.{environment.EnvironmentName}.json");
 
+var key = Encoding.ASCII.GetBytes(secret);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -51,7 +45,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = true; // Prod için true
+    options.RequireHttpsMetadata = false; // Render prod için false
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -66,24 +60,23 @@ builder.Services.AddAuthentication(options =>
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          if (environment.IsDevelopment())
-                          {
-                              policy.WithOrigins("http://localhost:5173")
-                                    .AllowAnyHeader()
-                                    .AllowAnyMethod()
-                                    .AllowCredentials();
-                          }
-                          else
-                          {
-                              policy.WithOrigins("https://full-stack-ai-chat-project.vercel.app")
-                                    .AllowAnyHeader()
-                                    .AllowAnyMethod()
-                                    .AllowCredentials();
-                          }
-                      });
+    options.AddPolicy(MyAllowSpecificOrigins, policy =>
+    {
+        if (environment.IsDevelopment())
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins("https://full-stack-ai-chat-project.vercel.app")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+    });
 });
 
 builder.Services.AddControllers();
@@ -92,11 +85,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// EF Core Migration (DB otomatik oluþturma)
+// DB Migration
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // DB yoksa oluþturur, varsa tablolarý ekler
+    db.Database.Migrate();
 }
 
 // Middleware
@@ -107,7 +100,8 @@ if (environment.IsDevelopment())
 }
 
 app.UseCors(MyAllowSpecificOrigins);
-// Preflight(OPTIONS) middleware
+
+// Preflight (OPTIONS) middleware
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == "OPTIONS")
@@ -122,14 +116,12 @@ app.Use(async (context, next) =>
     await next();
 });
 
-
-
-//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Render port
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://*:{port}");
+app.Urls.Add($"http://*:{port}");
 
 app.MapControllers();
 app.Run();
