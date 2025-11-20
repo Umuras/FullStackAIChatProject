@@ -6,10 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-//// Configuration
 var environment = builder.Environment;
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -33,49 +31,36 @@ builder.Services.AddHttpContextAccessor();
 
 // JWT
 var secret = builder.Configuration["AppSettings:Secret"];
-if (string.IsNullOrWhiteSpace(secret))
-    throw new Exception($"JWT Secret missing in appsettings.{environment.EnvironmentName}.json");
-
 var key = Encoding.ASCII.GetBytes(secret);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = true; // Render prod için false
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateLifetime = true,
-    };
-});
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateLifetime = true,
+        };
+    });
 
 // CORS
+var frontendUrl = environment.IsDevelopment()
+    ? "http://localhost:5173"
+    : "https://full-stack-ai-chat-project.vercel.app";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(MyAllowSpecificOrigins, policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        if (environment.IsDevelopment())
-        {
-            policy.WithOrigins("http://localhost:5173")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        }
-        else
-        {
-            policy.WithOrigins("https://full-stack-ai-chat-project.vercel.app")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        }
+        policy.WithOrigins(frontendUrl)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -101,35 +86,16 @@ if (environment.IsDevelopment())
 
 app.UseRouting();
 
-app.UseCors(MyAllowSpecificOrigins);
+// CORS middleware burada
+app.UseCors();
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Preflight (OPTIONS) middleware
-app.Use(async (context, next) =>
-{
-    if (context.Request.Method == "OPTIONS")
-    {
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "https://full-stack-ai-chat-project.vercel.app");
-        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        context.Response.StatusCode = 200;
-        await context.Response.CompleteAsync();
-        return;
-    }
-    await next();
-});
-
-
-
-
 
 app.MapControllers();
 
 // Render port
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 app.Urls.Add($"http://*:{port}");
 
 app.Run();
