@@ -433,3 +433,4 @@ backend/Properties/launchSettings.json
 *.db
 *.db-shm
 *.db-wal
+frontend/chataimobile/
