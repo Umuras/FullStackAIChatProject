@@ -9,12 +9,12 @@ using System.Text;
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuration
-var environment = builder.Environment;
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables();
+//// Configuration
+//var environment = builder.Environment;
+//builder.Configuration
+//    .SetBasePath(Directory.GetCurrentDirectory())
+//    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
+//    .AddEnvironmentVariables();
 
 // DB Context
 builder.Services.AddDbContext<AppDbContext>(options =>
