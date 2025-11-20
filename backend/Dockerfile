@@ -13,9 +13,8 @@ WORKDIR /src
 COPY ["backend.csproj", "."]
 RUN dotnet restore "./backend.csproj"
 
-# Config dosyalarýný kopyala (Production ve Development)
+# Config dosyalarýný kopyala (Production)
 COPY ["appsettings.Production.json", "./"]
-COPY ["appsettings.Development.json", "./"]
 
 # Tüm kaynak kodu kopyala
 COPY . .
