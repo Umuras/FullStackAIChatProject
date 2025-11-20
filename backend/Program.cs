@@ -10,9 +10,20 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuration
+var environment = builder.Environment;
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+// DB Context
 builder.Services.AddDbContext<AppDbContext>(options =>
-options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Add services to the container.
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -23,6 +34,7 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddHttpContextAccessor();
 
+// JWT
 var key = Encoding.ASCII.GetBytes(builder.Configuration["AppSettings:Secret"]);
 
 builder.Services.AddAuthentication(options =>
@@ -32,7 +44,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true; // Prod için true
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -44,27 +56,44 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:5173")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                          if (environment.IsDevelopment())
+                          {
+                              policy.WithOrigins("http://localhost:5173")
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod()
+                                    .AllowCredentials();
+                          }
+                          else
+                          {
+                              policy.WithOrigins("https://full-stack-ai-chat-project.vercel.app")
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod()
+                                    .AllowCredentials();
+                          }
                       });
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// EF Core Migration (DB otomatik oluþturma)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); // DB yoksa oluþturur, varsa tablolarý ekler
+}
+
+// Middleware
+if (environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -75,6 +104,11 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    app.Urls.Add($"http://*:{port}");
+}
 
+app.MapControllers();
 app.Run();
