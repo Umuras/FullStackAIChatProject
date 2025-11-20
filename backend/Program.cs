@@ -35,7 +35,13 @@ builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddHttpContextAccessor();
 
 // JWT
-var key = Encoding.ASCII.GetBytes(builder.Configuration["AppSettings:Secret"]);
+var secret = builder.Configuration["AppSettings:Secret"];
+if (string.IsNullOrWhiteSpace(secret))
+{
+    throw new Exception("JWT Secret is missing!");
+}
+var key = Encoding.ASCII.GetBytes(secret);
+
 
 builder.Services.AddAuthentication(options =>
 {
