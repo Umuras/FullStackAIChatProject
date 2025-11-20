@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // Render prod için false
+    options.RequireHttpsMetadata = true; // Render prod için false
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -99,7 +99,12 @@ if (environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Preflight (OPTIONS) middleware
 app.Use(async (context, next) =>
@@ -116,12 +121,14 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseAuthentication();
-app.UseAuthorization();
+
+
+
+
+app.MapControllers();
 
 // Render port
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
-app.MapControllers();
 app.Run();
