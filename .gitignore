@@ -424,7 +424,6 @@ appsettings.*.json
 secrets.json
 appsettings.json
 appsetting.Development.json
-appsetting.Production.json
 
 # LaunchSettings (yerel profil ayarları)
 backend/Properties/launchSettings.json

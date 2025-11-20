@@ -1,0 +1,17 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=chatapp-prod.db"
+  },
+  "AllowedHosts": "*",
+  "AppSettings": {
+    "ValidAudience": "https://full-stack-ai-chat-project.vercel.app",
+    "ValidIssuer": "FullStakAIChat",
+    "Secret": ""
+  }
+}
