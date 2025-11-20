@@ -2,6 +2,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export function LoginPage() {
   async function submitForm(formData) {
     try {
       const response = await axios
-        .post("http://localhost:5239/api/Auth/login", formData, {
+        .post(`${API_BASE_URL}/api/Auth/login`, formData, {
           withCredentials: true,
         })
         .then((response) => {

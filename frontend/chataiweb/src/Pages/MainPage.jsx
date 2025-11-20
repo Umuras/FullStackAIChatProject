@@ -12,7 +12,7 @@ export function MainPage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5239/api/Message", {
+      .get(`${API_BASE_URL}/api/Message`, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export function MainPage() {
       console.log("Gönderilen Mesaj:", messageText);
       axios
         .post(
-          "http://localhost:5239/api/Message",
+          `${API_BASE_URL}/api/Message`,
           { messageText: messageText },
           {
             headers: {
