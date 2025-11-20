@@ -15,8 +15,7 @@ var environment = builder.Environment;
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: true)
+    .AddJsonFile($"appsetting.{environment.EnvironmentName}.json", optional: false)
     .AddEnvironmentVariables();
 
 // DB Context
@@ -38,7 +37,7 @@ builder.Services.AddHttpContextAccessor();
 var secret = builder.Configuration["AppSettings:Secret"];
 if (string.IsNullOrWhiteSpace(secret))
 {
-    throw new Exception("JWT Secret is missing!");
+    throw new Exception($"JWT Secret is missing! appsetting.{environment.EnvironmentName}.json");
 }
 var key = Encoding.ASCII.GetBytes(secret);
 
