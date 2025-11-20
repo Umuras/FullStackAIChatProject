@@ -426,3 +426,9 @@ appsettings.json
 
 # LaunchSettings (yerel profil ayarları)
 backend/Properties/launchSettings.json
+
+
+#Database
+*.db
+*.db-shm
+*.db-wal
