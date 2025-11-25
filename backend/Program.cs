@@ -86,7 +86,14 @@ if (environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(handler =>
+{
+    handler.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Internal Server Error!");
+    });
+});
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
