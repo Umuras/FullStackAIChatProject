@@ -1,4 +1,4 @@
-# FullStack AI Chat Project
+# FullStackAIChatProject# FullStack AI Chat Project
 
 Full Stack AI Chat uygulaması — Backend **.NET 8 + Docker + Render**, Frontend **React + Vercel** yapısıyla geliştirilmiştir.  
 Uygulama kullanıcı kayıt, giriş, JWT doğrulama, mesaj gönderme ve OpenAI API ile sohbet etme özelliklerine sahiptir.
