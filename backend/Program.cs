@@ -50,21 +50,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// CORS
-var frontendUrl = environment.IsDevelopment()
-    ? "http://localhost:5173"
-    : "https://full-stack-ai-chat-project.vercel.app";
+//// CORS
+//var frontendUrl = environment.IsDevelopment()
+//    ? "http://localhost:5173"
+//    : "https://full-stack-ai-chat-project.vercel.app";
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(frontendUrl)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddDefaultPolicy(policy =>
+//    {
+//        policy.WithOrigins(frontendUrl)
+//              .AllowAnyHeader()
+//              .AllowAnyMethod()
+//              .AllowCredentials();
+//    });
+//});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -87,7 +87,7 @@ if (environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseCors("localhost");
+//app.UseCors("localhost");
 app.UseAuthentication();
 app.UseAuthorization();
 
