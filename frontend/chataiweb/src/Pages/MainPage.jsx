@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 export function MainPage() {
   const [messages, setMessages] = useState([]);
@@ -12,7 +13,7 @@ export function MainPage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5239/api/Message", {
+      .get(`${API_BASE_URL}/api/Message`, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -32,7 +33,7 @@ export function MainPage() {
       console.log("Gönderilen Mesaj:", messageText);
       axios
         .post(
-          "http://localhost:5239/api/Message",
+          `${API_BASE_URL}/api/Message`,
           { messageText: messageText },
           {
             headers: {

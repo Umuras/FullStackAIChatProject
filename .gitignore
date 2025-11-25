@@ -423,6 +423,7 @@ appsettings.Development.json
 appsettings.*.json
 secrets.json
 appsettings.json
+appsetting.Development.json
 
 # LaunchSettings (yerel profil ayarları)
 backend/Properties/launchSettings.json
@@ -432,3 +433,4 @@ backend/Properties/launchSettings.json
 *.db
 *.db-shm
 *.db-wal
+frontend/chataimobile/
