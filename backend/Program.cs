@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Middlewares;
 using backend.Repositories;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -53,7 +54,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // CORS
 var frontendUrl = environment.IsDevelopment()
     ? "http://localhost:5173"
-    : "https://full-stack-ai-chat-project.vercel.app";
+    : "https://full-stack-ai-chat-project-k577b9adb-ali-umur-kucurs-projects.vercel.app";
 
 builder.Services.AddCors(options =>
 {
@@ -86,19 +87,12 @@ if (environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler(handler =>
-{
-    handler.Run(async context =>
-    {
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("Internal Server Error!");
-    });
-});
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseCors("localhost");
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
