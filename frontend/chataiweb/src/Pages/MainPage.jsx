@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 export function MainPage() {
   const [messages, setMessages] = useState([]);
