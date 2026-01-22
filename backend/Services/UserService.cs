@@ -128,6 +128,10 @@ namespace backend.Services
         public async Task<User> GetByUserName(string userName)
         {
             User user = await userRepository.GetByUserName(userName);
+            if(user == null)
+            {
+                throw new KeyNotFoundException($"There isn't user belong with this username:{userName}");
+            }
             return user;
         }
     }
