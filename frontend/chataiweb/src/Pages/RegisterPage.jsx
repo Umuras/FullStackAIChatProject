@@ -26,12 +26,12 @@ export function RegisterPage() {
         .then((response) => {
           console.log("Kayıt Başarılı:", response.data);
           toast.success(
-            "Kayıt Başarılı! Giriş sayfasına yönlendiriliyorsunuz..."
+            "Kayıt Başarılı! Giriş sayfasına yönlendiriliyorsunuz...",
           );
           navigate("/login");
         });
     } catch (error) {
-      toast.error("Kayıt başarısız. Zaten böyle bir kullanıcı var.");
+      toast.error("Kayıt başarısız.");
       console.error("Kayıt Hatası:", error);
       console.log("Form Data Hatası:", formData);
     }
@@ -41,7 +41,7 @@ export function RegisterPage() {
     <section className="bg-linear-to-l from-sky-500 to-indigo-500 w-full min-h-screen flex items-center justify-center px-4">
       <div className="flex flex-col justify-center gap-6 w-full max-w-md">
         <h1 className="text-2xl sm:text-3xl md:text-4xl text-amber-300 font-bold text-center">
-          Mesajlaşma Uygulamasına Hoş Geldin
+          Mesaj Değerlendirme Uygulamasına Hoş Geldin
         </h1>
         <h2 className="text-xl sm:text-2xl md:text-3xl text-amber-600 font-bold text-center">
           Kayıt Sayfası
